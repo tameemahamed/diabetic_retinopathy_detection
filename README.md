@@ -1,7 +1,7 @@
 # Diabetic Retinopathy Detection
 ## Clone the repository
 ```bash
-git clone 
+git clone https://github.com/tameemahamed/diabetic_retinopathy_detection.git
 ```
 ## Download Model
 - Download the model from [here](https://drive.google.com/file/d/1eInkETjkvBjWiZFELhut5RbSdHVB1f20/view?usp=drive_link).
