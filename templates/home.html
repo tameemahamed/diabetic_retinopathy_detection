@@ -1,0 +1,411 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Home – DR Detection</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet"/>
+  <style>
+    body { font-family: 'Inter', sans-serif; }
+    
+    .gradient-bg {
+      background: linear-gradient(135deg, #0f766e 0%, #14b8a6 50%, #06b6d4 100%);
+    }
+    
+    .glass-effect {
+      backdrop-filter: blur(16px);
+      background: rgba(255, 255, 255, 0);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+    }
+    
+    .hero-animation {
+      animation: fadeInUp 1s ease-out;
+    }
+    
+    @keyframes fadeInUp {
+      from {
+        opacity: 0;
+        transform: translateY(30px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+    
+    .feature-card {
+      transition: all 0.3s ease;
+      border: 1px solid rgba(20, 184, 166, 0.2);
+    }
+    
+    .feature-card:hover {
+      transform: translateY(-8px);
+      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+      border-color: rgba(20, 184, 166, 0.5);
+    }
+    
+    .stats-counter {
+      font-size: 3rem;
+      font-weight: 800;
+      background: linear-gradient(135deg, #0f766e, #14b8a6);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    
+    .floating-shapes {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      pointer-events: none;
+    }
+    
+    .floating-shape {
+      position: absolute;
+      opacity: 0.1;
+      animation: float 8s ease-in-out infinite;
+    }
+    
+    @keyframes float {
+      0%, 100% { transform: translateY(0px) rotate(0deg); }
+      50% { transform: translateY(-20px) rotate(180deg); }
+    }
+    
+    .pulse-dot {
+      animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+    }
+    
+    .testimonial-card {
+      background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+      border: 1px solid #cbd5e1;
+    }
+    
+    .timeline-item {
+      position: relative;
+      padding-left: 3rem;
+      transition: all 0.3s ease; /* Added transition for hover effect */
+    }
+    
+    .timeline-item::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 0;
+      width: 3px;
+      height: 100%;
+      background: linear-gradient(to bottom, #14b8a6, #06b6d4);
+    }
+    
+    .timeline-item:hover .timeline-dot { /* Hover effect for dot */
+      transform: scale(1.2);
+      box-shadow: 0 0 0 6px rgba(20, 184, 166, 0.5);
+    }
+
+    .timeline-item:hover .bg-teal-50,
+    .timeline-item:hover .bg-blue-50,
+    .timeline-item:hover .bg-emerald-50 {
+      transform: translateY(-5px); /* Lift card on hover */
+      box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1); /* Add shadow on hover */
+    }
+
+    .timeline-dot {
+      position: absolute;
+      left: -0.5rem;
+      top: 0.5rem;
+      width: 1rem;
+      height: 1rem;
+      background: #14b8a6;
+      border: 3px solid white;
+      border-radius: 50%;
+      box-shadow: 0 0 0 3px rgba(20, 184, 166, 0.3);
+      transition: all 0.3s ease; /* Added transition for hover effect */
+    }
+    
+    .cta-button {
+      background: linear-gradient(135deg, #0f766e, #14b8a6);
+      box-shadow: 0 10px 25px rgba(20, 184, 166, 0.3);
+      transition: all 0.3s ease;
+    }
+    
+    .cta-button:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 15px 35px rgba(20, 184, 166, 0.4);
+    }
+    
+    .bg-pattern {
+      background-image: 
+        radial-gradient(circle at 25% 25%, rgba(20, 184, 166, 0.1) 0%, transparent 50%),
+        radial-gradient(circle at 75% 75%, rgba(6, 182, 212, 0.1) 0%, transparent 50%);
+    }
+
+    /* Sketchfab embed styling */
+    .sketchfab-embed-wrapper {
+      width: 100%; /* Make it responsive */
+      height: 400px; /* Set a fixed height or use aspect ratio padding-bottom */
+      margin-top: 2rem; /* Add some space above the model */
+      margin-bottom: 1.5rem; /* Add some space below the model */
+    }
+
+    .sketchfab-embed-wrapper iframe {
+      width: 100%;
+      height: 100%;
+      border-radius: 0.75rem; /* Match rounded corners of other elements */
+      box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05); /* Add shadow */
+    }
+
+    /* General button hover effect for all buttons not specifically styled */
+    .btn-hover-effect {
+      transition: all 0.3s ease;
+    }
+    .btn-hover-effect:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 15px rgba(0, 0, 0, 0.2);
+    }
+
+    /* DR Prevalence Statistics card hover effect */
+    .dr-stats-card {
+      transition: all 0.3s ease;
+    }
+    .dr-stats-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+    }
+  </style>
+</head>
+<body class="bg-gradient-to-br from-slate-50 via-blue-50 to-teal-50 text-gray-800">
+  <!-- Floating Shapes -->
+  <div class="floating-shapes">
+    <div class="floating-shape w-32 h-32 bg-teal-500 rounded-full top-20 left-10" style="animation-delay: 0s;"></div>
+    <div class="floating-shape w-24 h-24 bg-blue-500 rounded-full top-40 right-20" style="animation-delay: 2s;"></div>
+    <div class="floating-shape w-20 h-20 bg-emerald-500 rounded-full bottom-40 left-1/4" style="animation-delay: 4s;"></div>
+    <div class="floating-shape w-28 h-28 bg-cyan-500 rounded-full bottom-20 right-10" style="animation-delay: 1s;"></div>
+    <div class="floating-shape w-16 h-16 bg-purple-500 rounded-full top-1/2 left-1/2" style="animation-delay: 3s;"></div>
+  </div>
+
+  <!-- Navbar -->
+  <header class="fixed w-full glass-effect backdrop-blur z-20 shadow-lg">
+    <nav class="max-w-7xl mx-auto flex items-center justify-between p-4">
+      <a href="/home" class="text-xl font-bold text-teal-600 hover:text-teal-700 transition">
+        <span class="text-2xl">🔬</span> DR-Detect
+      </a>
+      <div class="flex items-center space-x-4">
+        <a href="/home" class="bg-teal-600 text-white px-3 py-1.5 rounded-full hover:bg-teal-700 transition text-sm">Home</a>
+        <a href="/dr_info" class="hover:text-teal-600 transition font-medium text-sm">DR Info</a>
+        <a href="/" class="hover:text-teal-600 transition font-medium text-sm">Predict</a>
+      </div>
+    </nav>
+  </header>
+
+  <!-- Hero Section -->
+  <section id="hero" class="relative pt-32 pb-20 bg-pattern">
+    <div class="max-w-6xl mx-auto text-center px-4 hero-animation">
+      <div class="mb-4">
+        <span class="inline-flex items-center gap-2 bg-teal-100 text-teal-800 px-3 py-1.5 rounded-full text-xs font-medium">
+          <span class="pulse-dot w-1.5 h-1.5 bg-teal-600 rounded-full"></span>
+          AI-Powered Medical Diagnosis
+        </span>
+      </div>
+      
+      <h1 class="text-4xl md:text-6xl font-black gradient-bg bg-clip-text text-transparent mb-4 leading-tight">
+        Detect Diabetic<br/>Retinopathy
+        <span class="text-3xl md:text-5xl block mt-2">in Seconds</span>
+      </h1>
+      
+      <p class="text-lg md:text-xl text-gray-600 mb-6 max-w-3xl mx-auto leading-relaxed">
+        Revolutionary AI technology that analyzes retinal images with 
+        <span class="font-bold text-teal-600">more than 75% accuracy</span> to detect diabetic retinopathy, 
+        helping prevent vision loss through early intervention.
+      </p>
+      
+      <div class="flex flex-col sm:flex-row gap-3 justify-center items-center mb-10">
+        <a href="/" class="cta-button text-white py-3 px-6 rounded-full shadow-lg font-semibold text-base transition-all duration-300 hover:scale-105 hover:shadow-xl">
+          🚀 Start Free Analysis
+        </a>
+        <a href="/dr_info" class="bg-white text-teal-600 py-3 px-6 rounded-full shadow-lg font-semibold text-base border-2 border-teal-600 hover:bg-teal-50 transition-all duration-300 btn-hover-effect">
+          📚 Learn About DR
+        </a>
+      </div>
+
+      <!-- 3D Human Eye Model - Moved to Hero Section -->
+      <div class="sketchfab-embed-wrapper mx-auto max-w-2xl"> 
+        <iframe title="Human Eye (animated, photorealistic textures)" frameborder="0" allowfullscreen mozallowfullscreen="true" webkitallowfullscreen="true" allow="autoplay; fullscreen; xr-spatial-tracking" xr-spatial-tracking execution-while-out-of-viewport execution-while-not-rendered web-share src="https://sketchfab.com/models/6adbd6538cd146d484c9ad950be69aa5/embed"> </iframe> 
+        <p style="font-size: 13px; font-weight: normal; margin: 5px; color: #4A4A4A;"> 
+          <a href="https://sketchfab.com/3d-models/human-eye-animated-photorealistic-textures-6adbd6538cd146d484c9ad950be69aa5?utm_medium=embed&utm_campaign=share-popup&utm_content=6adbd6538cd146d484c9ad950be69aa5" target="_blank" rel="nofollow" style="font-weight: bold; color: #1CAAD9;"> Human Eye (animated, photorealistic textures) </a> by <a href="https://sketchfab.com/docgfx?utm_medium=embed&utm_campaign=share-popup&utm_content=6adbd6538cd146d484c9ad950be69aa5" target="_blank" rel="nofollow" style="font-weight: bold; color: #1CAAD9;"> docgfx </a> on <a href="https://sketchfab.com?utm_medium=embed&utm_campaign=share-popup&utm_content=6adbd6538cd146d484c9ad950be69aa5" target="_blank" rel="nofollow" style="font-weight: bold; color: #1CAAD9;">Sketchfab</a>
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Features Section -->
+  <section id="features" class="py-16 bg-gray-50">
+    <div class="max-w-6xl mx-auto px-4">
+      <div class="text-center mb-12">
+        <h2 class="text-3xl font-bold text-gray-800 mb-3">Why Choose DR-Detect?</h2>
+        <p class="text-lg text-gray-600">Advanced AI technology meets clinical excellence</p>
+      </div>
+      
+      <div class="grid md:grid-cols-3 gap-6">
+        <div class="feature-card bg-white p-6 rounded-xl shadow-lg hover:shadow-2xl">
+          <div class="w-14 h-14 bg-gradient-to-br from-teal-500 to-blue-500 rounded-xl flex items-center justify-center mb-4">
+            <svg class="w-7 h-7 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/>
+            </svg>
+          </div>
+          <h3 class="text-xl font-bold mb-3 text-gray-800">Lightning Fast Analysis</h3>
+          <p class="text-gray-600 text-sm mb-3">Get results in under 3 seconds with our optimized deep learning models trained on millions of retinal images.</p>
+          <ul class="text-xs text-gray-500 space-y-1">
+            <li>• MobileNetV3 architecture</li>
+            <li>• Real-time processing</li>
+            <li>• Cloud-based inference</li>
+          </ul>
+        </div>
+        
+        <div class="feature-card bg-white p-6 rounded-xl shadow-lg hover:shadow-2xl">
+          <div class="w-14 h-14 bg-gradient-to-br from-emerald-500 to-cyan-500 rounded-xl flex items-center justify-center mb-4">
+            <svg class="w-7 h-7 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+            </svg>
+          </div>
+          <h3 class="text-xl font-bold mb-3 text-gray-800">High Accuracy & Reliability</h3>
+          <p class="text-gray-600 text-sm mb-3">Our AI models are rigorously tested and validated, achieving over 75% accuracy in detecting various stages of DR.</p>
+          <ul class="text-xs text-gray-500 space-y-1">
+            <li>• Clinically validated algorithms</li>
+            <li>• Continuous model improvement</li>
+            <li>• Reduced false positives</li>
+           </ul>
+        </div>
+
+        <div class="feature-card bg-white p-6 rounded-xl shadow-lg hover:shadow-2xl">
+          <div class="w-14 h-14 bg-gradient-to-br from-purple-500 to-pink-500 rounded-xl flex items-center justify-center mb-4">
+            <svg class="w-7 h-7 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.592 1L21 12l-4.408 3.592A2 2 0 0118 16a2 2 0 01-2 2H6a2 2 0 01-2-2 2 2 0 01-.592-1L3 12l4.408-3.592A2 2 0 016 8a2 2 0 012-2h4z"/>
+            </svg>
+          </div>
+          <h3 class="text-xl font-bold mb-3 text-gray-800">User-Friendly Interface</h3>
+          <p class="text-gray-600 text-sm mb-3">Designed for ease of use, our platform allows anyone to upload images and understand results without medical expertise.</p>
+          <ul class="text-xs text-gray-500 space-y-1">
+            <li>• Intuitive drag-and-drop</li>
+            <li>• Clear visual feedback</li>
+            <li>• Multi-device compatibility</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- How It Works Section -->
+  <section class="py-16 bg-white">
+    <div class="max-w-6xl mx-auto px-4">
+      <div class="text-center mb-12">
+        <h2 class="text-3xl font-bold text-gray-800 mb-3">How It Works</h2>
+        <p class="text-lg text-gray-600">Simple, fast, and reliable DR detection in three steps</p>
+      </div>
+      
+      <div class="grid md:grid-cols-3 gap-8">
+        <div class="timeline-item">
+          <div class="timeline-dot"></div>
+          <div class="bg-teal-50 p-5 rounded-lg">
+            <div class="text-2xl mb-3">📤</div>
+            <h3 class="text-lg font-bold mb-2">Upload Image</h3>
+            <p class="text-gray-600 text-sm">Upload your retinal photograph using our secure, drag-and-drop interface. We support all major image formats.</p>
+          </div>
+        </div>
+        
+        <div class="timeline-item">
+          <div class="timeline-dot"></div>
+          <div class="bg-blue-50 p-5 rounded-lg">
+            <div class="text-2xl mb-3">🤖</div>
+            <h3 class="text-lg font-bold mb-2">AI Analysis</h3>
+            <p class="text-gray-600 text-sm">Our advanced neural network analyzes the image, identifying key features and patterns associated with diabetic retinopathy.</p>
+          </div>
+        </div>
+        
+        <div class="timeline-item">
+          <div class="timeline-dot"></div>
+          <div class="bg-emerald-50 p-5 rounded-lg">
+            <div class="text-2xl mb-3">📊</div>
+            <h3 class="text-lg font-bold mb-2">Get Results</h3>
+            <p class="text-gray-600 text-sm">Receive detailed analysis with confidence scores, DR grade classification, and clinical recommendations.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- About DR Section -->
+  <section id="about" class="py-16 bg-gradient-to-br from-teal-50 to-blue-50">
+    <div class="max-w-6xl mx-auto px-4">
+      <div class="grid md:grid-cols-2 gap-8 items-center">
+        <div>
+          <h2 class="text-3xl font-bold text-gray-800 mb-4">Understanding Diabetic Retinopathy</h2>
+          <p class="text-base text-gray-600 mb-4 leading-relaxed">
+            Diabetic retinopathy is a serious eye condition that affects people with diabetes. It occurs when high blood sugar levels damage the tiny blood vessels in the retina, potentially leading to vision loss or blindness if left untreated.
+          </p>
+          <p class="text-base text-gray-600 mb-6 leading-relaxed">
+            Early detection is crucial because diabetic retinopathy often has no symptoms in its initial stages. Regular screening can help identify the condition before it progresses to sight-threatening stages.
+          </p>
+          <a href="/dr_info" class="inline-flex items-center gap-2 bg-teal-600 text-white px-5 py-2.5 rounded-full font-semibold hover:bg-teal-700 transition-colors text-sm btn-hover-effect">
+            Learn More About DR
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+            </svg>
+          </a>
+        </div>
+        
+        <div class="relative">
+          <div class="bg-white p-6 rounded-xl shadow-xl dr-stats-card"> <!-- Added dr-stats-card class -->
+            <h3 class="text-lg font-bold mb-4 text-gray-800">DR Prevalence Statistics</h3>
+            <div class="space-y-3">
+              <div class="flex justify-between items-center text-sm">
+                <span class="text-gray-600">Global diabetic population</span>
+                <span class="font-bold text-teal-600">537M+</span>
+              </div>
+              <div class="flex justify-between items-center text-sm">
+                <span class="text-gray-600">At risk for DR</span>
+                <span class="font-bold text-teal-600">35%</span>
+              </div>
+              <div class="flex justify-between items-center text-sm">
+                <span class="text-gray-600">Preventable blindness</span>
+                <span class="font-bold text-teal-600">90%</span>
+              </div>
+              <div class="flex justify-between items-center text-sm">
+                <span class="font-bold text-teal-600">Early detection success</span>
+                <span class="font-bold text-teal-600">95%</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA Section -->
+  <section class="py-16 bg-gradient-to-r from-teal-600 to-blue-600 text-white">
+    <div class="max-w-4xl mx-auto text-center px-4">
+      <h2 class="text-3xl md:text-4xl font-bold mb-5">Ready to Protect Your Vision?</h2>
+
+      <div class="flex flex-col sm:flex-row gap-3 justify-center">
+        <a href="/" class="bg-white text-teal-600 py-2 px-5 rounded-full font-bold text-sm hover:bg-gray-100 transition-colors shadow-lg hover:text-teal-700 btn-hover-effect">
+          🚀 Start Free Analysis
+        </a>
+        <a href="/dr_info" class="border-2 border-white text-white py-2 px-5 rounded-full font-bold text-sm hover:bg-white hover:text-teal-600 transition-colors btn-hover-effect">
+          📚 Learn More
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="bg-gray-900 text-white py-5">
+    <div class="max-w-6xl mx-auto px-4">
+      <div class="border-gray-800 text-center text-gray-400 text-sm">
+        <p>&copy; 2025 DR-Detect.</p>
+      </div>
+    </div>
+  </footer>
+</body>
+</html>

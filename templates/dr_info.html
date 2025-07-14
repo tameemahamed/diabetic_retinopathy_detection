@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>DR Info – DR Detection</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet"/>
+  <style>
+    body {
+      font-family: 'Inter', sans-serif;
+      /* Apply a subtle gradient background to the body */
+      background: linear-gradient(135deg, #f0fdfa 0%, #dcfce7 100%); /* Light teal to light green gradient */
+    }
+    .glass-effect {
+      backdrop-filter: blur(16px);
+      background: rgba(255, 255, 255, 0);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+    }
+    .card-hover {
+      transition: all 0.3s ease;
+    }
+    .card-hover:hover {
+      transform: translateY(-8px);
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+    }
+    .floating-element {
+      animation: float 6s ease-in-out infinite;
+    }
+    @keyframes float {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-20px); }
+    }
+    /* Custom scrollbar for better aesthetics */
+    ::-webkit-scrollbar {
+      width: 8px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #f1f1f1;
+      border-radius: 10px;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #14b8a6;
+      border-radius: 10px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: #0d9488;
+    }
+    /* Responsive iframe container */
+    .iframe-container {
+      position: relative;
+      width: 100%;
+      padding-bottom: 56.25%; /* 16:9 Aspect Ratio */
+      height: 0;
+      overflow: hidden;
+    }
+    .iframe-container iframe {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+    }
+  </style>
+</head>
+<body class="flex flex-col min-h-screen text-gray-800">
+  <!-- Floating Background Elements for visual interest -->
+  <div class="fixed inset-0 overflow-hidden pointer-events-none z-0">
+    <div class="floating-element absolute top-20 left-10 w-32 h-32 bg-teal-200 rounded-full opacity-20"></div>
+    <div class="floating-element absolute top-60 right-20 w-24 h-24 bg-emerald-200 rounded-full opacity-25" style="animation-delay: 2s;"></div>
+    <div class="floating-element absolute bottom-40 left-1/4 w-20 h-20 bg-cyan-200 rounded-full opacity-20" style="animation-delay: 4s;"></div>
+    <div class="floating-element absolute top-1/2 left-1/2 w-40 h-40 bg-blue-200 rounded-full opacity-15" style="animation-delay: 6s; transform: translate(-50%, -50%);"></div>
+  </div>
+
+  <!-- Navbar -->
+  <header class="fixed w-full glass-effect backdrop-blur z-20 shadow-lg">
+    <nav class="max-w-7xl mx-auto flex items-center justify-between p-4">
+      <a href="/home" class="text-xl font-bold text-teal-600 hover:text-teal-700 transition">
+        <span class="text-2xl">🔬</span> DR-Detect
+      </a>
+      <div class="flex items-center space-x-4">
+        <a href="/home" class="hover:text-teal-600 transition font-medium text-sm">Home</a>
+        <a href="/dr_info" class="bg-teal-600 text-white px-3 py-1.5 rounded-full hover:bg-teal-700 transition text-sm">DR Info</a>
+        <a href="/" class="hover:text-teal-600 transition font-medium text-sm">Predict</a>
+      </div>
+    </nav>
+  </header>
+
+  <!-- Main Content Area -->
+  <main class="flex-grow pt-24 pb-16 px-4 w-full relative z-10 max-w-5xl mx-auto space-y-12">
+    <!-- Hero Section with Gradient Title -->
+    <div class="text-center mb-12">
+      <h1 class="text-5xl md:text-6xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-teal-600 to-emerald-600 mb-4">
+        Diabetic Retinopathy 101
+      </h1>
+      <p class="text-xl text-gray-600 max-w-2xl mx-auto">
+        Understanding Diabetic Retinopathy: Stages, Symptoms, Prevention, and Early Detection.
+      </p>
+    </div>
+
+    <!-- What Is DR? Section -->
+    <section class="glass-effect p-8 rounded-2xl shadow-2xl card-hover">
+      <h2 class="text-3xl font-semibold text-gray-800 mb-4 flex items-center">
+        <span class="text-4xl mr-3">👁️</span> What Is DR?
+      </h2>
+      <p class="text-gray-600 leading-relaxed text-lg mb-4">
+        Diabetic retinopathy (DR) is a serious and potentially sight-threatening complication of diabetes. It occurs when high blood sugar levels damage the tiny blood vessels in the retina, the light-sensitive tissue at the back of the eye. These damaged blood vessels can swell, leak fluid, or even close off completely, depriving the retina of essential nutrients and oxygen.
+      </p>
+      <p class="text-gray-600 leading-relaxed text-lg">
+        Globally, DR is a leading cause of vision impairment and blindness, particularly among working-age adults. Its insidious nature means it often progresses without noticeable symptoms in its early stages, making routine screenings critically important. Without timely diagnosis and appropriate treatment, the damage can become irreversible, leading to severe vision loss or complete blindness. Early intervention is key to preserving sight.
+      </p>
+    </section>
+
+    <!-- 3D Model Section -->
+    <section class="glass-effect p-8 rounded-2xl shadow-2xl card-hover flex flex-col items-center">
+      <h2 class="text-3xl font-semibold text-gray-800 mb-6 flex items-center">
+        <span class="text-4xl mr-3">💡</span> Visualizing Diabetic Retinopathy
+      </h2>
+      <p class="text-gray-600 leading-relaxed text-lg mb-6 text-center max-w-3xl">
+        Explore this interactive 3D model of an eye affected by diabetes to better understand the anatomical changes and complications associated with diabetic retinopathy.
+      </p>
+      <div class="sketchfab-embed-wrapper w-full max-w-4xl mx-auto">
+        <div class="iframe-container rounded-xl overflow-hidden shadow-lg border border-gray-200">
+          <iframe title="Diabetes eye diseases labelled detailed" frameborder="0" allowfullscreen mozallowfullscreen="true" webkitallowfullscreen="true" allow="autoplay; fullscreen; xr-spatial-tracking" xr-spatial-tracking execution-while-out-of-viewport execution-while-not-rendered web-share src="https://sketchfab.com/models/24a1efa00d484074b74dd86f06aed55f/embed"> </iframe>
+        </div>
+        <p style="font-size: 13px; font-weight: normal; margin: 10px 0 0 0; color: #4A4A4A; text-align: center;">
+          <a href="https://sketchfab.com/3d-models/diabetes-eye-diseases-labelled-detailed-24a1efa00d484074b74dd86f06aed55f?utm_medium=embed&utm_campaign=share-popup&utm_content=24a1efa00d484074b74dd86f06aed55f" target="_blank" rel="nofollow" style="font-weight: bold; color: #1CAAD9;"> 
+            Diabetes eye diseases labelled detailed 
+          </a> by 
+          <a href="https://sketchfab.com/Deepankar.Parmar?utm_medium=embed&utm_campaign=share-popup&utm_content=24a1efa00d484074b74dd86f06aed55f" target="_blank" rel="nofollow" style="font-weight: bold; color: #1CAAD9;"> 
+            Deepankar.Parmar 
+          </a> on 
+          <a href="https://sketchfab.com?utm_medium=embed&utm_campaign=share-popup&utm_content=24a1efa00d484074b74dd86f06aed55f" target="_blank" rel="nofollow" style="font-weight: bold; color: #1CAAD9;">
+            Sketchfab
+          </a>
+        </p>
+      </div>
+    </section>
+
+    <!-- Stages of DR Section -->
+    <section class="glass-effect p-8 rounded-2xl shadow-2xl card-hover">
+      <h2 class="text-3xl font-semibold text-gray-800 mb-4 flex items-center">
+        <span class="text-4xl mr-3">📈</span> Stages of DR
+      </h2>
+      <p class="text-gray-600 leading-relaxed mb-6 text-lg">
+        Diabetic Retinopathy progresses through a series of well-defined stages, each characterized by specific changes in the retinal blood vessels. Understanding these stages is crucial for effective monitoring and timely intervention:
+      </p>
+      <div class="grid md:grid-cols-2 gap-6">
+        <div class="bg-white p-6 rounded-xl shadow card-hover border border-gray-100">
+          <h3 class="font-semibold text-teal-600 mb-2 text-xl flex items-center">
+            <span class="mr-2">✅</span> No DR (Normal)
+          </h3>
+          <p class="text-gray-700">At this stage, there are no visible signs of diabetic retinopathy. The retina appears healthy, and all blood vessels are intact and functioning normally. This indicates good control of blood sugar and other risk factors. Regular monitoring is still recommended for individuals with diabetes.</p>
+        </div>
+        <div class="bg-white p-6 rounded-xl shadow card-hover border border-gray-100">
+          <h3 class="font-semibold text-teal-600 mb-2 text-xl flex items-center">
+            <span class="mr-2">🟡</span> Mild NPDR (Non-Proliferative Diabetic Retinopathy)
+          </h3>
+          <p class="text-gray-700">This is the earliest clinically detectable stage of DR. It is characterized by the presence of microaneurysms—tiny bulges in the retinal capillaries that can leak fluid or blood. There may also be dot and blot hemorrhages. Vision is typically unaffected at this stage, and it often goes unnoticed without a dilated eye exam.</p>
+        </div>
+        <div class="bg-white p-6 rounded-xl shadow card-hover border border-gray-100">
+          <h3 class="font-semibold text-teal-600 mb-2 text-xl flex items-center">
+            <span class="mr-2">🟠</span> Moderate NPDR
+          </h3>
+          <p class="text-gray-700">As DR progresses, more extensive damage occurs. This stage involves an increased number of microaneurysms and hemorrhages. Hard exudates (yellowish lipid deposits from leaking vessels) and cotton-wool spots (fluffy white patches representing nerve fiber layer infarcts due to blocked blood flow) may also appear. Visual acuity might begin to be affected, especially if macular edema is present.</p>
+        </div>
+        <div class="bg-white p-6 rounded-xl shadow card-hover border border-gray-100">
+          <h3 class="font-semibold text-teal-600 mb-2 text-xl flex items-center">
+            <span class="mr-2">🔴</span> Severe NPDR
+          </h3>
+          <p class="text-gray-700">This stage signifies significant and widespread retinal damage. It is characterized by extensive intraretinal hemorrhages in all four quadrants of the retina, venous beading (irregular dilation of retinal veins), and prominent intraretinal microvascular abnormalities (IRMA). There is substantial capillary non-perfusion (areas where blood vessels have closed off), leading to severe retinal ischemia. This stage carries a very high risk of progression to the proliferative stage.</p>
+        </div>
+        <div class="md:col-span-2 bg-white p-6 rounded-xl shadow card-hover border border-gray-100">
+          <h3 class="font-semibold text-teal-600 mb-2 text-xl flex items-center">
+            <span class="mr-2">🚨</span> Proliferative DR (PDR)
+          </h3>
+          <p class="text-gray-700">PDR is the most advanced and severe stage of diabetic retinopathy. Due to widespread and severe oxygen deprivation (ischemia) in the retina, the body attempts to compensate by growing new, abnormal blood vessels (neovascularization). These new vessels are fragile and can grow on the surface of the retina or optic disc. They are prone to bleeding into the vitreous gel (vitreous hemorrhage), which can cause sudden, significant vision loss. PDR can also lead to tractional retinal detachment (when fibrous tissue associated with new vessels pulls on the retina) and neovascular glaucoma (a severe form of glaucoma caused by new vessel growth in the iris and drainage angle).</p>
+        </div>
+        <div class="md:col-span-2 bg-white p-6 rounded-xl shadow card-hover border border-gray-100">
+          <h3 class="font-semibold text-teal-600 mb-2 text-xl flex items-center">
+            <span class="mr-2">💀</span> Advanced PDR (End-stage)
+          </h3>
+          <p class="text-gray-700">If left untreated, PDR can progress to end-stage complications that severely compromise vision. This includes persistent and recurrent vitreous hemorrhages, extensive tractional retinal detachment leading to permanent vision loss, severe fibrovascular proliferation (scar tissue formation), and intractable neovascular glaucoma. At this point, vision may be profoundly impaired and often not fully recoverable even with complex surgical interventions. Prevention and early treatment are paramount to avoid reaching this devastating stage.</p>
+        </div>
+      </div>
+      </section>
+      <!-- Associated conditions -->
+    <section class="glass-effect p-8 rounded-2xl shadow-2xl card-hover">
+
+      <div class="mt-8 text-gray-600 leading-relaxed space-y-4 text-lg">
+        <h3 class="font-semibold text-gray-800 text-2xl mb-3">Associated Conditions & Key Features:</h3>
+        <p><strong>Macular Edema:</strong> This condition can occur at any stage of DR, from mild NPDR to PDR. It is caused by fluid leaking from damaged blood vessels into the macula, the central part of the retina responsible for sharp, detailed vision. Macular edema is the most common cause of vision loss in DR. Symptoms include blurred or distorted central vision. Detection and monitoring are often done using Optical Coherence Tomography (OCT).</p>
+        <p><strong>Ischemic Maculopathy:</strong> This occurs when the blood vessels supplying the macula become completely blocked, leading to a lack of sufficient blood flow and oxygen. Unlike macular edema, which is treatable, ischemic maculopathy results in permanent central vision loss due to the death of retinal cells. It’s often underdiagnosed without fluorescein angiography, which can visualize areas of non-perfusion.</p>
+        <p><strong>IRMA (Intraretinal Microvascular Abnormalities):</strong> These are abnormal vessel growths within the retina, often seen in severe NPDR. They represent dilated and tortuous segments of existing capillaries that have undergone remodeling due to ischemia. Unlike neovascularization, IRMA do not leak during fluorescein angiography, helping distinguish them and indicating significant retinal ischemia and a high risk of progression to PDR.</p>
+        <p><strong>Neovascularization Elsewhere (NVE) vs. Neovascularization of the Disc (NVD):</strong> In PDR, abnormal blood vessels may grow on the optic disc (NVD) or in other retinal regions away from the disc (NVE). NVD is generally considered more severe and carries a higher risk of vision-threatening complications like vitreous hemorrhage and tractional retinal detachment due to its proximity to major blood vessels.</p>
+        <p><strong>Fibrovascular Proliferation:</strong> In advanced PDR, the fragile new vessels are often accompanied by the growth of fibrous (scar) tissue. As this tissue contracts, it can exert traction on the retina, leading to tractional retinal detachment, a severe complication that can cause irreversible vision loss if not surgically treated.</p>
+        <p><strong>Diagnostic Tools:</strong> A comprehensive eye exam is essential. Key diagnostic tools include:
+          <ul class="list-disc list-inside ml-5 mt-2">
+            <li><strong>Fundus Photography:</strong> High-resolution images of the retina to document and monitor retinal damage.</li>
+            <li><strong>Optical Coherence Tomography (OCT):</strong> A non-invasive imaging test that provides cross-sectional views of the retina, crucial for detecting and monitoring macular edema.</li>
+            <li><strong>Fluorescein Angiography (FA):</strong> An imaging technique where a dye is injected into the bloodstream to highlight retinal blood vessels, revealing areas of leakage, non-perfusion, and neovascularization.</li>
+            <li><strong>Ultrasonography:</strong> Used when the ocular media (e.g., vitreous) is opaque due to severe vitreous hemorrhage, preventing direct visualization of the retina.</li>
+          </ul>
+        </p>
+        <p><strong>Vision Impact:</strong> The impact on vision varies widely depending on the stage and complications. It can range from no symptoms in early stages to blurred vision, floaters, distorted vision (due to macular edema), poor night vision, difficulty seeing colors, peripheral vision loss, black spots, and sudden total vision loss in advanced cases.</p>
+      </div>
+    </section>
+
+    <!-- Symptoms & Risk Factors Section -->
+    <section class="glass-effect p-8 rounded-2xl shadow-2xl card-hover">
+      <h2 class="text-3xl font-semibold text-gray-800 mb-4 flex items-center">
+        <span class="text-4xl mr-3">⚠️</span> Symptoms & Risk Factors
+      </h2>
+      <p class="text-gray-600 leading-relaxed text-lg mb-4">
+        Diabetic retinopathy often presents with no symptoms in its early stages, highlighting the importance of regular eye screenings. When symptoms do appear, they can include:
+      </p>
+      <ul class="list-disc list-inside text-gray-600 space-y-3 text-lg mb-6">
+        <li><strong>Blurred or fluctuating vision:</strong> Vision may change day to day or even hour to hour, often correlated with blood sugar level fluctuations.</li>
+        <li><strong>Floaters or dark spots in vision:</strong> These can be caused by small hemorrhages or cellular debris in the vitreous gel. They may appear as cobwebs, strings, or specks.</li>
+        <li><strong>Poor night vision or difficulty seeing colors:</strong> Damage to the retinal cells can impair the eye's ability to adapt to low light or distinguish between colors.</li>
+        <li><strong>Sudden vision loss:</strong> A severe and urgent symptom, often indicative of a vitreous hemorrhage or retinal detachment, requiring immediate medical attention.</li>
+        <li><strong>Pain or pressure in the eye:</strong> Less common, but can occur in advanced stages if complications like neovascular glaucoma develop.</li>
+      </ul>
+      <h3 class="font-semibold text-gray-800 text-2xl mb-3">Key Risk Factors for Developing DR:</h3>
+      <ul class="list-disc list-inside text-gray-600 space-y-3 text-lg">
+        <li><strong>Uncontrolled Blood Sugar (Hyperglycemia):</strong> This is the primary risk factor. Chronically high HbA1c levels significantly increase the risk and progression of DR.</li>
+        <li><strong>Duration of Diabetes:</strong> The longer an individual has diabetes, the higher their risk of developing DR. Almost all individuals with type 1 diabetes and a significant percentage of those with type 2 diabetes will develop some degree of DR over time.</li>
+        <li><strong>Hypertension (High Blood Pressure):</strong> Poorly controlled blood pressure can accelerate damage to the retinal blood vessels.</li>
+        <li><strong>High Cholesterol and Lipid Levels:</strong> Elevated lipid levels can contribute to the formation of hard exudates in the retina and worsen vascular damage.</li>
+        <li><strong>Smoking:</strong> Smoking damages blood vessels throughout the body, including those in the retina, and significantly increases DR risk and progression.</li>
+        <li><strong>Pregnancy:</strong> Diabetic women who become pregnant are at higher risk of developing or worsening DR, necessitating close monitoring.</li>
+        <li><strong>Kidney Disease (Nephropathy):</strong> The presence of diabetic nephropathy is often associated with more severe DR, indicating systemic microvascular damage.</li>
+        <li><strong>Genetics:</strong> While not a direct cause, a family history of severe DR might indicate a genetic predisposition.</li>
+      </ul>
+    </section>
+
+    <!-- Prevention & Management Section -->
+    <section class="glass-effect p-8 rounded-2xl shadow-2xl card-hover">
+      <h2 class="text-3xl font-semibold text-gray-800 mb-4 flex items-center">
+        <span class="text-4xl mr-3">🛡️</span> Prevention & Management
+      </h2>
+      <p class="text-gray-600 leading-relaxed text-lg mb-4">
+        Preventing and managing diabetic retinopathy involves a multi-faceted approach, focusing on strict control of diabetes and regular eye care.
+      </p>
+      <h3 class="font-semibold text-gray-800 text-2xl mb-3">Prevention Strategies:</h3>
+      <ul class="list-disc list-inside text-gray-600 space-y-3 text-lg mb-6">
+        <li><strong>Optimal Glycemic Control:</strong> Work with your doctor to keep your HbA1c levels consistently below 7% (or as advised for your individual case). This is the single most effective way to prevent DR onset and slow its progression.</li>
+        <li><strong>Blood Pressure Management:</strong> Maintain blood pressure under 130/80 mmHg (or target set by your physician) to reduce stress on delicate retinal vessels.</li>
+        <li><strong>Lipid Control:</strong> Keep LDL cholesterol below 100 mg/dL and manage triglycerides to minimize lipid deposition in the retina.</li>
+        <li><strong>Regular Eye Exams:</strong> Attend annual or semi-annual dilated eye exams as recommended by your ophthalmologist, even if you have no symptoms. This allows for early detection of subtle changes.</li>
+        <li><strong>Healthy Lifestyle:</strong> Adopt a balanced diet rich in fruits, vegetables, whole grains, and lean proteins. Engage in at least 150 minutes of moderate-intensity aerobic physical activity per week.</li>
+        <li><strong>Avoid Harmful Habits:</strong> Quit smoking entirely and limit alcohol intake, as both significantly worsen microvascular damage.</li>
+      </ul>
+      <h3 class="font-semibold text-gray-800 text-2xl mb-3">Treatment Modalities:</h3>
+      <ul class="list-disc list-inside text-gray-600 space-y-3 text-lg">
+        <li><strong>Laser Therapy (Photocoagulation):</strong>
+          <ul class="list-circle list-inside ml-5 mt-2">
+            <li><strong>Focal Laser:</strong> Used for clinically significant macular edema (CSME). Tiny laser burns seal leaking blood vessels in the macula, reducing fluid buildup.</li>
+            <li><strong>Panretinal Photocoagulation (PRP) / Scatter Laser:</strong> Used for PDR. Hundreds of small laser burns are applied to the peripheral retina to destroy ischemic areas, thereby reducing the stimulus for abnormal new blood vessel growth.</li>
+          </ul>
+        </li>
+        <li><strong>Anti-VEGF Injections:</strong> Medications (e.g., Lucentis, Eylea, Avastin) are injected directly into the vitreous gel. These drugs block Vascular Endothelial Growth Factor (VEGF), a protein that promotes the growth of abnormal blood vessels and leakage. They are highly effective for treating diabetic macular edema (DME) and can also be used to manage PDR.</li>
+        <li><strong>Vitrectomy:</strong> A surgical procedure performed for advanced cases of PDR. It involves removing the vitreous gel from the eye when it is clouded by persistent vitreous hemorrhage or when tractional retinal detachment has occurred due to scar tissue pulling on the retina. The surgeon can also remove scar tissue and reattach the retina.</li>
+        <li><strong>Steroid Injections:</strong> Intravitreal steroid injections can be used in some cases of DME, particularly when anti-VEGF therapy is not fully effective or contraindicated.</li>
+      </ul>
+    </section>
+
+    <!-- Impact of DR Section (New Section) -->
+    <section class="glass-effect p-8 rounded-2xl shadow-2xl card-hover">
+      <h2 class="text-3xl font-semibold text-gray-800 mb-4 flex items-center">
+        <span class="text-4xl mr-3">💔</span> Impact of Diabetic Retinopathy
+      </h2>
+      <p class="text-gray-600 leading-relaxed text-lg mb-4">
+        The impact of diabetic retinopathy extends far beyond physical vision loss, significantly affecting an individual's quality of life, independence, and the broader healthcare system.
+      </p>
+      <ul class="list-disc list-inside text-gray-600 space-y-3 text-lg">
+        <li><strong>Vision Impairment and Blindness:</strong> DR is the leading cause of new cases of blindness among adults aged 20-74 years in developed countries. Progressive vision loss can range from mild blurring to complete blindness, severely limiting daily activities.</li>
+        <li><strong>Reduced Quality of Life:</strong> Impaired vision affects an individual's ability to read, drive, work, and engage in hobbies, leading to decreased independence, social isolation, and a higher risk of falls and injuries.</li>
+        <li><strong>Psychological Impact:</strong> Living with progressive vision loss can lead to significant psychological distress, including anxiety, depression, and a reduced sense of well-being.</li>
+        <li><strong>Economic Burden:</strong> The disease imposes a substantial economic burden on individuals, families, and healthcare systems due to the costs of treatment, lost productivity, and long-term care for vision-related disabilities.</li>
+        <li><strong>Systemic Health Indicator:</strong> The presence of DR often signals that other microvascular complications of diabetes (e.g., kidney disease, nerve damage) may also be present or developing, underscoring the importance of comprehensive diabetes management.</li>
+      </ul>
+    </section>
+
+    <!-- Why Early Detection Matters Section -->
+    <section class="glass-effect p-8 rounded-2xl shadow-2xl card-hover">
+      <h2 class="text-3xl font-semibold text-gray-800 mb-4 flex items-center">
+        <span class="text-4xl mr-3">⏱️</span> Why Early Detection Matters
+      </h2>
+      <p class="text-gray-600 leading-relaxed text-lg">
+        Early stages of DR often have no symptoms, which is precisely why routine screenings are vital. By the time noticeable symptoms appear, the disease may already be advanced, and some vision loss might be irreversible.
+        Early detection through comprehensive dilated eye exams and retinal imaging allows for timely intervention, such as stricter diabetes management, laser therapy, or injections, which can effectively halt the progression of the disease and preserve vision.
+        AI-powered screening tools are emerging as effective and scalable solutions for large-scale detection, especially in under-resourced areas, making screenings more accessible and efficient, and ultimately preventing avoidable blindness. Regular screening is your best defense against vision loss from DR.
+      </p>
+    </section>
+
+    <!-- Resources Section -->
+    <section class="glass-effect p-8 rounded-2xl shadow-2xl card-hover">
+      <h2 class="text-3xl font-semibold text-gray-800 mb-4 flex items-center">
+        <span class="text-4xl mr-3">📚</span> Resources
+      </h2>
+      <p class="text-gray-600 leading-relaxed text-lg mb-4">
+        For more in-depth information and support regarding diabetic retinopathy, please explore the following reputable organizations:
+      </p>
+      <ul class="list-disc list-inside text-gray-600 space-y-3 text-lg">
+        <li><a href="https://www.aao.org/eye-health/diseases/what-is-diabetic-retinopathy" class="text-teal-600 hover:underline font-medium" target="_blank" rel="noopener noreferrer">American Academy of Ophthalmology (AAO)</a></li>
+        <li><a href="https://www.idf.org/aboutdiabetes/complications/diabetic-retinopathy.html" class="text-teal-600 hover:underline font-medium" target="_blank" rel="noopener noreferrer">International Diabetes Federation (IDF)</a></li>
+        <li><a href="https://nei.nih.gov/learn-about-eye-health/eye-conditions-and-diseases/diabetic-retinopathy" class="text-teal-600 hover:underline font-medium" target="_blank" rel="noopener noreferrer">National Eye Institute (NEI)</a></li>
+        <li><a href="https://www.diabetes.org/diabetes/complications/diabetic-retinopathy" class="text-teal-600 hover:underline font-medium" target="_blank" rel="noopener noreferrer">American Diabetes Association (ADA)</a></li>
+        <li><a href="https://www.preventblindness.org/diabetic-retinopathy" class="text-teal-600 hover:underline font-medium" target="_blank" rel="noopener noreferrer">Prevent Blindness</a></li>
+      </ul>
+    </section>
+  </main>
+
+  <!-- Footer -->
+  <footer class="mt-auto bg-gray-900 text-white py-4">
+    <div class="max-w-6xl mx-auto px-4 text-center text-gray-400">
+      <p>&copy; 2025 DR-Detect.</p>
+    </div>
+  </footer>
+</body>
+</html>

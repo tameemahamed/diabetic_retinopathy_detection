@@ -1,0 +1,590 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Predict – DR Detection</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet"/>
+  <style>
+    body { font-family: 'Inter', sans-serif; }
+    .gradient-bg {
+      background: linear-gradient(135deg, #0d9488 0%, #14b8a6 25%, #5eead4 50%, #a7f3d0 75%, #ffffff 100%);
+    }
+    .glass-effect {
+      backdrop-filter: blur(16px);
+      background: rgba(255, 255, 255, 0);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+    }
+    .card-hover {
+      transition: all 0.3s ease;
+    }
+    .card-hover:hover {
+      transform: translateY(-8px);
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+    }
+    .pulse-animation {
+      animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+    }
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.7; }
+    }
+    .drop-zone-active {
+      background: linear-gradient(135deg, #e6fffa 0%, #b2f5ea 100%);
+      border-color: #14b8a6;
+    }
+    .confidence-bar {
+      height: 8px;
+      background: linear-gradient(90deg, #ef4444, #f59e0b, #10b981);
+      border-radius: 4px;
+      overflow: hidden;
+    }
+    .floating-element {
+      animation: float 6s ease-in-out infinite;
+    }
+    @keyframes float {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-20px); }
+    }
+    .result-card {
+      background: linear-gradient(135deg, #ffffff 0%, #f0fdfa 100%);
+      border: 2px solid #14b8a6;
+    }
+    .severity-indicator {
+      width: 100%;
+      height: 12px;
+      background: linear-gradient(90deg, #10b981 0%, #f59e0b 50%, #ef4444 100%);
+      border-radius: 6px;
+      position: relative;
+    }
+    .severity-marker {
+      position: absolute;
+      top: -2px;
+      width: 16px;
+      height: 16px;
+      background: #1f2937;
+      border-radius: 50%;
+      border: 2px solid white;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+    }
+  </style>
+</head>
+<body class="flex flex-col min-h-screen">
+
+  <!-- Floating Background Elements -->
+  <div class="fixed inset-0 overflow-hidden pointer-events-none z-0">
+    <div class="floating-element absolute top-20 left-10 w-32 h-32 bg-teal-200 rounded-full opacity-20"></div>
+    <div class="floating-element absolute top-60 right-20 w-24 h-24 bg-emerald-200 rounded-full opacity-25" style="animation-delay: 2s;"></div>
+    <div class="floating-element absolute bottom-40 left-1/4 w-20 h-20 bg-cyan-200 rounded-full opacity-20" style="animation-delay: 4s;"></div>
+  </div>
+
+  <!-- Navbar -->
+  <header class="fixed w-full glass-effect backdrop-blur z-20 shadow-lg">
+    <nav class="max-w-7xl mx-auto flex items-center justify-between p-4">
+      <a href="/home" class="text-xl font-bold text-teal-600 hover:text-teal-700 transition">
+        <span class="text-2xl">🔬</span> DR-Detect
+      </a>
+      <div class="flex items-center space-x-4">
+        <a href="/home" class="hover:text-teal-600 transition font-medium text-sm">Home</a>
+        <a href="/dr_info" class="hover:text-teal-600 transition font-medium text-sm">DR Info</a>
+        <a href="/" class="bg-teal-600 text-white px-3 py-1.5 rounded-full hover:bg-teal-700 transition text-sm">Predict</a>
+      </div>
+    </nav>
+  </header>
+
+  <!-- Main Content -->
+  <main class="flex-grow pt-24 pb-16 px-4 w-full relative z-10">
+    <!-- Header Section -->
+    <div class="text-center mb-12">
+      <h1 class="text-5xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-teal-600 to-emerald-600 mb-4">
+        AI-Powered DR Analysis
+      </h1>
+      <p class="text-xl text-gray-600 max-w-2xl mx-auto">
+        Upload a retinal image and get instant diabetic retinopathy grade prediction with advanced AI analysis
+      </p>
+    </div>
+
+    <!-- Upload Form -->
+    <div class="max-w-4xl mx-auto mb-12">
+      <form method="POST" enctype="multipart/form-data" id="upload-form"
+            class="glass-effect p-8 rounded-2xl shadow-2xl card-hover">
+        
+        <!-- Progress Indicator -->
+        <div class="flex items-center justify-center mb-8" id="progress-indicator">
+          <div class="flex items-center space-x-4">
+            <div id="step-1" class="flex items-center justify-center w-8 h-8 bg-teal-600 text-white rounded-full font-semibold">1</div>
+            <div id="bar-1-2" class="w-16 h-1 bg-teal-600 rounded"></div>
+            <div id="step-2" class="flex items-center justify-center w-8 h-8 bg-gray-300 text-gray-600 rounded-full font-semibold">2</div>
+            <div id="bar-2-3" class="w-16 h-1 bg-gray-300 rounded"></div>
+            <div id="step-3" class="flex items-center justify-center w-8 h-8 bg-gray-300 text-gray-600 rounded-full font-semibold">3</div>
+          </div>
+        </div>
+
+        <!-- Drag & Drop Zone -->
+        <div id="drop-zone"
+             class="flex flex-col items-center justify-center border-2 border-dashed border-gray-300 rounded-xl h-48 cursor-pointer hover:border-teal-500 transition-all duration-300 bg-white/50">
+          <div class="text-center">
+            <div class="text-6xl mb-4">📁</div>
+            <p id="drop-zone-text" class="text-gray-600 text-lg font-medium">
+              Drag & drop your retinal image here or click to browse
+            </p>
+            <p class="text-gray-500 text-sm mt-2">Supports JPG, PNG, JPEG formats</p>
+          </div>
+          <input type="file" name="original" id="original" accept="image/*" class="hidden"/>
+        </div>
+
+        <!-- File Info Display -->
+        <div id="file-info" class="mt-4 hidden">
+          <div class="flex items-center p-4 bg-teal-50 rounded-lg">
+            <div class="text-2xl mr-3">📄</div>
+            <div>
+              <p id="file-name" class="font-semibold text-teal-800"></p>
+              <p id="file-size" class="text-teal-600 text-sm"></p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Submit Button -->
+        <button type="submit" id="submit-btn"
+                class="w-full bg-gradient-to-r from-teal-600 to-emerald-600 text-white py-4 rounded-xl font-semibold hover:from-teal-700 hover:to-emerald-700 transition-all duration-300 mt-6 shadow-lg">
+          <span id="submit-text">🔍 Analyze Image</span>
+          <span id="loading-text" class="hidden">
+            <svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-white inline" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+              <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+              <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+            </svg>
+            Analyzing...
+          </span>
+        </button>
+      </form>
+    </div>
+
+    <!-- Error Display -->
+    {% if error %}
+      <div class="max-w-4xl mx-auto mb-8">
+        <div class="bg-red-50 border-l-4 border-red-500 p-4 rounded-r-lg shadow-lg">
+          <div class="flex items-center">
+            <div class="text-2xl mr-3">⚠️</div>
+            <div>
+              <p class="text-red-700 font-semibold">Error</p>
+              <p class="text-red-600">{{ error }}</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    {% endif %}
+
+    <!-- Results Section -->
+    {% if result %}
+      <!-- Main Result Card -->
+      <div class="max-w-4xl mx-auto mb-8">
+        <div class="result-card p-8 rounded-2xl shadow-2xl card-hover">
+          <div class="text-center mb-6">
+            <h2 class="text-3xl font-bold text-teal-700 mb-2">📊 Analysis Results</h2>
+            <p class="text-gray-600">AI-powered diabetic retinopathy detection completed</p>
+          </div>
+
+          <div class="grid md:grid-cols-2 gap-8">
+            <!-- Grade Result -->
+            <div class="text-center">
+              <div class="bg-white p-6 rounded-xl shadow-lg">
+                <h3 class="text-lg font-semibold text-gray-800 mb-2">Detected Grade</h3>
+                <div class="text-4xl font-bold text-teal-600 mb-2">{{ grade }}</div>
+                <div class="text-sm text-gray-600 mb-4">
+                  Confidence: <span class="font-semibold text-teal-600">{{ (confidence|float * 100)|round(1) }}%</span>
+                </div>
+                
+                <!-- Severity Indicator -->
+                <div class="severity-indicator">
+                  <div class="severity-marker" style="left: {{ (confidence_scores.index(confidence_scores|max) / 4 * 100)|round(1) }}%;"></div>
+                </div>
+                <div class="flex justify-between text-xs text-gray-500 mt-2">
+                  <span>No DR</span>
+                  <span>Mild</span>
+                  <span>Moderate</span>
+                  <span>Severe</span>
+                  <span>PDR</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Grade Information -->
+            <div class="bg-white p-6 rounded-xl shadow-lg">
+              <h3 class="text-lg font-semibold text-gray-800 mb-4">Grade Information</h3>
+              {% if grade == 'No DR' %}
+                <div class="text-green-600">
+                  <p class="font-semibold">✅ No signs of diabetic retinopathy detected</p>
+                  <p class="text-sm mt-2">Continue regular monitoring and maintain good blood sugar control.</p>
+                </div>
+              {% elif grade == 'Mild DR' %}
+                <div class="text-yellow-600">
+                  <p class="font-semibold">⚠️ Mild non-proliferative diabetic retinopathy</p>
+                  <p class="text-sm mt-2">Early stage with microaneurysms present. Regular monitoring recommended.</p>
+                </div>
+              {% elif grade == 'Moderate DR' %}
+                <div class="text-orange-600">
+                  <p class="font-semibold">⚠️ Moderate non-proliferative diabetic retinopathy</p>
+                  <p class="text-sm mt-2">Hemorrhages and other changes visible. Closer monitoring needed.</p>
+                </div>
+              {% elif grade == 'Severe DR' %}
+                <div class="text-red-600">
+                  <p class="font-semibold">🚨 Severe non-proliferative diabetic retinopathy</p>
+                  <p class="text-sm mt-2">Extensive changes present. Urgent ophthalmologic consultation recommended.</p>
+                </div>
+              {% elif grade == 'Proliferative DR' %}
+                <div class="text-red-700">
+                  <p class="font-semibold">🚨 Proliferative diabetic retinopathy</p>
+                  <p class="text-sm mt-2">Advanced stage with new vessel growth. Immediate treatment required.</p>
+                </div>
+              {% endif %}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Confidence Chart -->
+      <div class="max-w-4xl mx-auto mb-8">
+        <div class="bg-white p-8 rounded-2xl shadow-xl card-hover">
+          <h3 class="text-xl font-semibold text-gray-800 mb-6 text-center">
+            📈 Confidence Distribution Across All Grades
+          </h3>
+          <div class="relative h-[20rem]">
+            <canvas id="confidenceChart" class="w-full h-full"></canvas>
+          </div>
+        </div>
+      </div>
+
+      <!-- Original Image Display -->
+      <div class="max-w-4xl mx-auto mb-8">
+        <div class="bg-white p-8 rounded-2xl shadow-xl card-hover">
+          <h3 class="text-xl font-semibold text-gray-800 mb-6 text-center">
+            👁️ Original Retinal Image
+          </h3>
+          <div class="text-center">
+            <div class="inline-block relative">
+              <img
+                id="original-image"
+                src=""
+                alt="Original Retinal Image"
+                class="max-w-full max-h-80 h-auto rounded-lg shadow-lg border-4 border-teal-100"
+              />
+              <div class="absolute inset-0 bg-gradient-to-br from-transparent via-transparent to-teal-600/10 rounded-lg"></div>
+            </div>
+            <p class="text-gray-600 mt-4 text-sm">
+              The retinal image analyzed by our AI system
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Recommendations -->
+      <div class="max-w-4xl mx-auto mb-8">
+        <div class="bg-gradient-to-r from-blue-50 to-indigo-50 p-8 rounded-2xl shadow-xl card-hover border border-blue-200">
+          <h3 class="text-xl font-semibold text-gray-800 mb-6 text-center">
+            💡 Recommendations
+          </h3>
+          <div class="grid md:grid-cols-2 gap-6">
+            <div class="space-y-4">
+              <div class="flex items-start space-x-3">
+                <div class="text-2xl">👨‍⚕️</div>
+                <div>
+                  <p class="font-semibold text-gray-800">Consult Your Doctor</p>
+                  <p class="text-gray-600 text-sm">Share these results with your healthcare provider for proper evaluation and treatment planning.</p>
+                </div>
+              </div>
+              <div class="flex items-start space-x-3">
+                <div class="text-2xl">📅</div>
+                <div>
+                  <p class="font-semibold text-gray-800">Regular Monitoring</p>
+                  <p class="text-gray-600 text-sm">Schedule regular eye exams as recommended by your ophthalmologist.</p>
+                </div>
+              </div>
+            </div>
+            <div class="space-y-4">
+              <div class="flex items-start space-x-3">
+                <div class="text-2xl">🩺</div>
+                <div>
+                  <p class="font-semibold text-gray-800">Blood Sugar Control</p>
+                  <p class="text-gray-600 text-sm">Maintain optimal blood glucose levels to prevent progression of diabetic retinopathy.</p>
+                </div>
+              </div>
+              <div class="flex items-start space-x-3">
+                <div class="text-2xl">🏥</div>
+                <div>
+                  <p class="font-semibold text-gray-800">Emergency Care</p>
+                  <p class="text-gray-600 text-sm">Seek immediate medical attention if you experience sudden vision changes.</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Technical Details -->
+      <div class="max-w-4xl mx-auto mb-8">
+        <div class="bg-gray-50 p-8 rounded-2xl shadow-xl card-hover">
+          <h3 class="text-xl font-semibold text-gray-800 mb-6 text-center">
+            🔬 Technical Analysis Details
+          </h3>
+          <div class="grid md:grid-cols-3 gap-6">
+            <div class="bg-white p-4 rounded-lg shadow">
+              <h4 class="font-semibold text-gray-800 mb-2">AI Model</h4>
+              <p class="text-gray-600 text-sm">Deep learning model trained on thousands of retinal images with self-attention mechanism</p>
+            </div>
+            <div class="bg-white p-4 rounded-lg shadow">
+              <h4 class="font-semibold text-gray-800 mb-2">Image Processing</h4>
+              <p class="text-gray-600 text-sm">Advanced preprocessing including vessel suppression and lesion decomposition</p>
+            </div>
+            <div class="bg-white p-4 rounded-lg shadow">
+              <h4 class="font-semibold text-gray-800 mb-2">Accuracy</h4>
+              <p class="text-gray-600 text-sm">Validated on clinical datasets with >75% accuracy across all DR grades</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Inline JS for Charts and Interactions -->
+      <script>
+        // Chart Configuration
+        const ctx = document.getElementById('confidenceChart').getContext('2d');
+        const confidenceData = {{ confidence_scores|tojson }};
+        const classNames = {{ class_names|tojson }};
+        
+        // Create gradient for bars
+        const gradient = ctx.createLinearGradient(0, 0, 0, 400);
+        gradient.addColorStop(0, 'rgba(16, 185, 129, 0.8)');
+        gradient.addColorStop(1, 'rgba(16, 185, 129, 0.2)');
+
+        new Chart(ctx, {
+          type: 'bar',
+          data: {
+            labels: classNames,
+            datasets: [{
+              label: 'Confidence Score',
+              data: confidenceData,
+              backgroundColor: gradient,
+              borderColor: 'rgba(16, 185, 129, 1)',
+              borderWidth: 2,
+              borderRadius: 8,
+              borderSkipped: false,
+            }]
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+              legend: {
+                display: false
+              },
+              tooltip: {
+                backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                titleColor: 'white',
+                bodyColor: 'white',
+                borderColor: 'rgba(16, 185, 129, 1)',
+                borderWidth: 1,
+                callbacks: {
+                  label: function(context) {
+                    return `Confidence: ${(context.parsed.y * 100).toFixed(1)}%`;
+                  }
+                }
+              }
+            },
+            scales: {
+              y: {
+                beginAtZero: true,
+                max: 1,
+                grid: {
+                  color: 'rgba(0, 0, 0, 0.05)'
+                },
+                ticks: {
+                  callback: function(value) {
+                    return (value * 100).toFixed(0) + '%';
+                  }
+                },
+                title: {
+                  display: true,
+                  text: 'Confidence Score',
+                  font: {
+                    size: 14,
+                    weight: 'bold'
+                  }
+                }
+              },
+              x: {
+                grid: {
+                  display: false
+                },
+                title: {
+                  display: true,
+                  text: 'Diabetic Retinopathy Grade',
+                  font: {
+                    size: 14,
+                    weight: 'bold'
+                  }
+                }
+              }
+            }
+          }
+        });
+      </script>
+    {% endif %}
+  </main>
+
+  <!-- Footer -->
+  <footer class="mt-auto bg-gray-900 text-white py-4">
+    <div class="max-w-6xl mx-auto px-4 text-center text-gray-400">
+      <p>&copy; 2025 DR-Detect.</p>
+    </div>
+  </footer>
+
+  <script>
+  // Element references
+  const dropZone     = document.getElementById('drop-zone');
+  const fileInput    = document.getElementById('original');
+  const dropText     = document.getElementById('drop-zone-text');
+  const fileInfo     = document.getElementById('file-info');
+  const fileName     = document.getElementById('file-name');
+  const fileSize     = document.getElementById('file-size');
+  const submitBtn    = document.getElementById('submit-btn');
+  const submitText   = document.getElementById('submit-text');
+  const loadingText  = document.getElementById('loading-text');
+
+  // Utility: format bytes to human‑readable
+  function formatFileSize(bytes) {
+    if (!bytes) return '0 Bytes';
+    const k = 1024;
+    const sizes = ['Bytes','KB','MB','GB'];
+    const i = Math.floor(Math.log(bytes) / Math.log(k));
+    return (bytes / Math.pow(k, i)).toFixed(2) + ' ' + sizes[i];
+  }
+
+  // Update file‑info UI and save to session storage for preview
+  function handleFileSelect() {
+    const file = fileInput.files[0];
+    if (file) {
+      fileName.textContent = file.name;
+      fileSize.textContent = formatFileSize(file.size);
+      fileInfo.classList.remove('hidden');
+      dropText.textContent = 'File selected! Click to change or drag a new file.';
+      dropZone.classList.add('drop-zone-active');
+      updateProgressStep(0);
+
+      // Save file data to session storage for display on results page
+      const reader = new FileReader();
+      reader.onload = e => sessionStorage.setItem('uploadedImage', e.target.result);
+      reader.readAsDataURL(file);
+
+    } else {
+      fileInfo.classList.add('hidden');
+      dropText.textContent = 'Drag & drop your retinal image here or click to browse';
+      dropZone.classList.remove('drop-zone-active');
+    }
+  }
+
+  // Prevent default for drag/drop events
+  ['dragenter','dragover','dragleave','drop'].forEach(evt =>
+    [dropZone, document.body].forEach(el =>
+      el.addEventListener(evt, e => {
+        e.preventDefault();
+        e.stopPropagation();
+      })
+    )
+  );
+
+  // Highlight drop‑zone
+  ['dragenter','dragover'].forEach(evt =>
+    dropZone.addEventListener(evt, () => dropZone.classList.add('drop-zone-active'))
+  );
+  ['dragleave','drop'].forEach(evt =>
+    dropZone.addEventListener(evt, () => dropZone.classList.remove('drop-zone-active'))
+  );
+
+  // Handle actual drop
+  dropZone.addEventListener('drop', e => {
+    const files = e.dataTransfer.files;
+    if (files.length) {
+      fileInput.files = files;
+      handleFileSelect(); // This now also saves to sessionStorage
+    }
+  });
+
+  // Click‑to‑browse
+  dropZone.addEventListener('click', () => fileInput.click());
+
+  // When user selects via file dialog (this already calls handleFileSelect)
+  fileInput.addEventListener('change', handleFileSelect);
+
+  // Form submission: show loading spinner and advance progress
+  document.getElementById('upload-form').addEventListener('submit', e => {
+    if (!fileInput.files.length) {
+      e.preventDefault();
+      // Using a custom modal/message box instead of alert()
+      const messageBox = document.createElement('div');
+      messageBox.className = 'fixed inset-0 bg-gray-900 bg-opacity-75 flex items-center justify-center z-50';
+      messageBox.innerHTML = `
+        <div class="bg-white p-6 rounded-lg shadow-xl text-center">
+          <p class="text-lg font-semibold text-gray-800 mb-4">Please select an image file before submitting.</p>
+          <button id="close-message" class="bg-teal-600 text-white px-4 py-2 rounded-md hover:bg-teal-700 transition">OK</button>
+        </div>
+      `;
+      document.body.appendChild(messageBox);
+      document.getElementById('close-message').addEventListener('click', () => {
+        document.body.removeChild(messageBox);
+      });
+      return;
+    }
+    submitText.classList.add('hidden');
+    loadingText.classList.remove('hidden');
+    submitBtn.disabled = true;
+    submitBtn.classList.add('opacity-75');
+    updateProgressStep(1);
+  });
+
+  // After results render: display stored image & finalize progress
+  document.addEventListener('DOMContentLoaded', () => {
+    const imgData = sessionStorage.getItem('uploadedImage');
+    if (imgData) {
+      const imgEl = document.getElementById('original-image');
+      if (imgEl) {
+        imgEl.src = imgData;
+        // No need to remove from sessionStorage here, as it might be useful if the user navigates back.
+        // It will be overwritten on a new upload.
+      }
+    }
+    // If on a results page, mark step 3
+    if (document.querySelector('.result-card')) {
+      updateProgressStep(2);
+    }
+  });
+
+  // Progress‑step helper
+  function updateProgressStep(step) {
+    const steps = ['step-1','step-2','step-3'];
+    const bars  = ['bar-1-2','bar-2-3'];
+
+    steps.forEach((id, idx) => {
+      const el = document.getElementById(id);
+      if (idx <= step) {
+        el.classList.replace('bg-gray-300','bg-teal-600');
+        el.classList.replace('text-gray-600','text-white');
+      } else {
+        el.classList.replace('bg-teal-600','bg-gray-300');
+        el.classList.replace('text-white','text-gray-600');
+      }
+    });
+
+    bars.forEach((id, idx) => {
+      const el = document.getElementById(id);
+      if (idx < step) {
+        el.classList.replace('bg-gray-300','bg-teal-600');
+      } else {
+        el.classList.replace('bg-teal-600','bg-gray-300');
+      }
+    });
+  }
+
+  </script>
+</body>
+</html>
