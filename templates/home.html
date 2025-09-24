@@ -190,7 +190,7 @@
   <header class="fixed w-full glass-effect backdrop-blur z-20 shadow-lg">
     <nav class="max-w-7xl mx-auto flex items-center justify-between p-4">
       <a href="/home" class="text-xl font-bold text-teal-600 hover:text-teal-700 transition">
-        <span class="text-2xl">🔬</span> DR-Detect
+        <span class="text-2xl">🔬</span> DR-Check AI
       </a>
       <div class="flex items-center space-x-4">
         <a href="/home" class="bg-teal-600 text-white px-3 py-1.5 rounded-full hover:bg-teal-700 transition text-sm">Home</a>
@@ -217,9 +217,28 @@
       
       <p class="text-lg md:text-xl text-gray-600 mb-6 max-w-3xl mx-auto leading-relaxed">
         Revolutionary AI technology that analyzes retinal images with 
-        <span class="font-bold text-teal-600">more than 75% accuracy</span> to detect diabetic retinopathy, 
+        <span class="font-bold text-teal-600">more than 85% accuracy</span> to detect diabetic retinopathy,
         helping prevent vision loss through early intervention.
       </p>
+
+      <!-- Import the component -->
+<script type="module" src="https://ajax.googleapis.com/ajax/libs/model-viewer/4.0.0/model-viewer.min.js"></script>
+<style>
+        model-viewer {
+            width: 400px;
+            height: 400px;
+        }
+    </style>
+      <center>
+    <model-viewer alt="Realistic Human Eye"
+                  src="{{ url_for('static', filename='models/realistic_human_eye.glb') }}"
+                  shadow-intensity="0"
+                  camera-controls
+                  animation-mixer
+                  autoplay
+    >
+    </model-viewer>
+      </center>
       
       <div class="flex flex-col sm:flex-row gap-3 justify-center items-center mb-10">
         <a href="/" class="cta-button text-white py-3 px-6 rounded-full shadow-lg font-semibold text-base transition-all duration-300 hover:scale-105 hover:shadow-xl">
@@ -231,12 +250,12 @@
       </div>
 
       <!-- 3D Human Eye Model - Moved to Hero Section -->
-      <div class="sketchfab-embed-wrapper mx-auto max-w-2xl"> 
-        <iframe title="Human Eye (animated, photorealistic textures)" frameborder="0" allowfullscreen mozallowfullscreen="true" webkitallowfullscreen="true" allow="autoplay; fullscreen; xr-spatial-tracking" xr-spatial-tracking execution-while-out-of-viewport execution-while-not-rendered web-share src="https://sketchfab.com/models/6adbd6538cd146d484c9ad950be69aa5/embed"> </iframe> 
-        <p style="font-size: 13px; font-weight: normal; margin: 5px; color: #4A4A4A;"> 
-          <a href="https://sketchfab.com/3d-models/human-eye-animated-photorealistic-textures-6adbd6538cd146d484c9ad950be69aa5?utm_medium=embed&utm_campaign=share-popup&utm_content=6adbd6538cd146d484c9ad950be69aa5" target="_blank" rel="nofollow" style="font-weight: bold; color: #1CAAD9;"> Human Eye (animated, photorealistic textures) </a> by <a href="https://sketchfab.com/docgfx?utm_medium=embed&utm_campaign=share-popup&utm_content=6adbd6538cd146d484c9ad950be69aa5" target="_blank" rel="nofollow" style="font-weight: bold; color: #1CAAD9;"> docgfx </a> on <a href="https://sketchfab.com?utm_medium=embed&utm_campaign=share-popup&utm_content=6adbd6538cd146d484c9ad950be69aa5" target="_blank" rel="nofollow" style="font-weight: bold; color: #1CAAD9;">Sketchfab</a>
-        </p>
-      </div>
+<!--      <div class="sketchfab-embed-wrapper mx-auto max-w-2xl"> -->
+<!--        <iframe title="Human Eye (animated, photorealistic textures)" frameborder="0" allowfullscreen mozallowfullscreen="true" webkitallowfullscreen="true" allow="autoplay; fullscreen; xr-spatial-tracking" xr-spatial-tracking execution-while-out-of-viewport execution-while-not-rendered web-share src="https://sketchfab.com/models/6adbd6538cd146d484c9ad950be69aa5/embed"> </iframe> -->
+<!--        <p style="font-size: 13px; font-weight: normal; margin: 5px; color: #4A4A4A;"> -->
+<!--          <a href="https://sketchfab.com/3d-models/human-eye-animated-photorealistic-textures-6adbd6538cd146d484c9ad950be69aa5?utm_medium=embed&utm_campaign=share-popup&utm_content=6adbd6538cd146d484c9ad950be69aa5" target="_blank" rel="nofollow" style="font-weight: bold; color: #1CAAD9;"> Human Eye (animated, photorealistic textures) </a> by <a href="https://sketchfab.com/docgfx?utm_medium=embed&utm_campaign=share-popup&utm_content=6adbd6538cd146d484c9ad950be69aa5" target="_blank" rel="nofollow" style="font-weight: bold; color: #1CAAD9;"> docgfx </a> on <a href="https://sketchfab.com?utm_medium=embed&utm_campaign=share-popup&utm_content=6adbd6538cd146d484c9ad950be69aa5" target="_blank" rel="nofollow" style="font-weight: bold; color: #1CAAD9;">Sketchfab</a>-->
+<!--        </p>-->
+<!--      </div>-->
     </div>
   </section>
 
@@ -244,7 +263,7 @@
   <section id="features" class="py-16 bg-gray-50">
     <div class="max-w-6xl mx-auto px-4">
       <div class="text-center mb-12">
-        <h2 class="text-3xl font-bold text-gray-800 mb-3">Why Choose DR-Detect?</h2>
+        <h2 class="text-3xl font-bold text-gray-800 mb-3">Why Choose DR-Check AI?</h2>
         <p class="text-lg text-gray-600">Advanced AI technology meets clinical excellence</p>
       </div>
       
@@ -271,7 +290,7 @@
             </svg>
           </div>
           <h3 class="text-xl font-bold mb-3 text-gray-800">High Accuracy & Reliability</h3>
-          <p class="text-gray-600 text-sm mb-3">Our AI models are rigorously tested and validated, achieving over 75% accuracy in detecting various stages of DR.</p>
+          <p class="text-gray-600 text-sm mb-3">Our AI models are rigorously tested and validated, achieving over 85% accuracy in detecting various stages of DR.</p>
           <ul class="text-xs text-gray-500 space-y-1">
             <li>• Clinically validated algorithms</li>
             <li>• Continuous model improvement</li>
