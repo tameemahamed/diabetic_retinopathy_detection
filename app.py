@@ -1,5 +1,6 @@
-import os
-from flask import Flask, request, render_template, redirect, url_for, send_from_directory
+import base64
+from io import BytesIO
+from flask import Flask, request, render_template, redirect, url_for
 import numpy as np
 from PIL import Image
 import tensorflow as tf
@@ -178,123 +179,91 @@ def crop_dark_border(image_np, threshold=10):
     cropped = image_np[y:y+h, x:x+w]
     return cropped
 
-def preprocess_image_for_prediction(image_path, upload_folder, original_filename):
+def pil_image_to_data_url(pil_img, fmt='PNG'):
+    buf = BytesIO()
+    pil_img.save(buf, format=fmt)
+    b = buf.getvalue()
+    data_b64 = base64.b64encode(b).decode('ascii')
+    return f"data:image/{fmt.lower()};base64,{data_b64}"
+
+def preprocess_image_file(file_storage):
     """
-    Preprocesses a single image by cropping dark borders, resizing,
-    generating bright/dark lesion maps, and extracting the background.
-    Also saves the bright and dark maps to the upload folder.
-    Args:
-        image_path (str): Path to the input image file.
-        upload_folder (str): Path to the directory where images should be saved.
-        original_filename (str): The original filename of the uploaded image.
+    Accepts a Werkzeug FileStorage (request.files['original']) and processes in-memory.
     Returns:
-        tuple: (input_original_batch, input_bright_map_batch, input_dark_map_batch,
-                input_background_batch, bright_map_filename, dark_map_filename)
-               or (None, None, None, None, None, None) if preprocessing fails.
+      - original_input_batch (np.array, shape (1,640,640,3), normalized [-1,1])
+      - bright_map_input (np.array, shape (1,640,640,3), normalized [-1,1])
+      - dark_map_input (np.array, shape (1,640,640,3), normalized [-1,1])
+      - bright_map_data_url (str)  <-- base64 data URL for embedding in template
+      - dark_map_data_url (str)
+    If processing fails, returns (None, None, None, None, None)
     """
-    bright_map_filename = None
-    dark_map_filename = None
     try:
-        img_pil = Image.open(image_path).convert("RGB")
-        img_array = np.array(img_pil, dtype=np.uint8) # Convert to uint8 for OpenCV operations
+        bytes_io = BytesIO(file_storage.read())
+        img_pil = Image.open(bytes_io).convert("RGB")
+        img_array = np.array(img_pil, dtype=np.uint8)
+        cropped = crop_dark_border(img_array)
+        if cropped.shape[0] == 0 or cropped.shape[1] == 0:
+            return (None, None, None, None, None)
 
-        # Step 1: Remove dark borders
-        cropped_img_array = crop_dark_border(img_array)
+        resized = cv2.resize(cropped, (640, 640), interpolation=cv2.INTER_LINEAR)
+        original_img_norm = (resized.astype(np.float32) / 127.5) - 1.0
 
-        # Step 2: Resize to target size (640x640)
-        # Ensure the image is not empty after cropping
-        if cropped_img_array.shape[0] == 0 or cropped_img_array.shape[1] == 0:
-            print(f"Warning: Image {image_path} became empty after cropping. Skipping.")
-            return None, None, None, None, None, None
-
-        resized_img_array = cv2.resize(cropped_img_array, (640, 640), interpolation=cv2.INTER_LINEAR)
-
-        # Convert to float32 and normalize to [-1, 1] as required by the model
-        original_img_norm = (resized_img_array.astype(np.float32) / 127.5) - 1.0
-
-        # --- Background Extraction ---
-        # Create a grayscale version of the resized image for mask generation
-        gray_resized = cv2.cvtColor(resized_img_array, cv2.COLOR_RGB2GRAY)
-        # Use a threshold to create a mask of the retinal area (foreground)
-        # A threshold of 20 is commonly used to distinguish the retina from the dark background.
+        gray_resized = cv2.cvtColor(resized, cv2.COLOR_RGB2GRAY)
         _, retina_mask = cv2.threshold(gray_resized, 20, 255, cv2.THRESH_BINARY)
-
-        # Invert the mask to get the background area
         background_mask = cv2.bitwise_not(retina_mask)
-
-        # Create the background image by applying the background mask to the original resized image.
-        # This effectively blacks out the retinal area, leaving only the background.
-        background_img_array = cv2.bitwise_and(resized_img_array, resized_img_array, mask=background_mask)
-
-        # Normalize the background image to [-1, 1] for consistency
+        background_img_array = cv2.bitwise_and(resized, resized, mask=background_mask)
         background_img_norm = (background_img_array.astype(np.float32) / 127.5) - 1.0
 
-        # Decompose lesions (uses original_img_norm)
         bright_map, dark_map = decompose_lesions(original_img_norm)
 
-        # --- Save Bright and Dark Maps ---
-        # Convert normalized maps [-1, 1] back to [0, 255] for saving as image
+        # Convert maps to displayable PIL images (uint8 grayscale)
         bright_map_display = ((bright_map + 1.0) * 127.5).astype(np.uint8)
         dark_map_display = ((dark_map + 1.0) * 127.5).astype(np.uint8)
 
-        # Ensure single channel for saving as grayscale images
-        if bright_map_display.ndim == 3:
-            bright_map_display = bright_map_display[:, :, 0]
-        if dark_map_display.ndim == 3:
-            dark_map_display = dark_map_display[:, :, 0]
+        # Ensure 2D -> convert to 3-channel for consistency with model input
+        if bright_map_display.ndim == 2:
+            bright_map_3ch = np.stack([bright_map_display, bright_map_display, bright_map_display], axis=-1)
+        else:
+            bright_map_3ch = bright_map_display
 
-        bright_map_pil = Image.fromarray(bright_map_display)
-        dark_map_pil = Image.fromarray(dark_map_display)
+        if dark_map_display.ndim == 2:
+            dark_map_3ch = np.stack([dark_map_display, dark_map_display, dark_map_display], axis=-1)
+        else:
+            dark_map_3ch = dark_map_display
 
-        base_name = os.path.splitext(original_filename)[0]
-        bright_map_filename = f"{base_name}_bright.png"
-        dark_map_filename = f"{base_name}_dark.png"
-
-        bright_map_filepath = os.path.join(upload_folder, bright_map_filename)
-        dark_map_filepath = os.path.join(upload_folder, dark_map_filename)
-
-        bright_map_pil.save(bright_map_filepath)
-        dark_map_pil.save(dark_map_filepath)
-        print(f"Saved bright map to: {bright_map_filepath}")
-        print(f"Saved dark map to: {dark_map_filepath}")
-        # --- End Save Bright and Dark Maps ---
-
-
-        # Stack single-channel maps to 3 channels for model input consistency
-        bright_map_3ch = np.stack([bright_map, bright_map, bright_map], axis=-1)
-        dark_map_3ch = np.stack([dark_map, dark_map, dark_map], axis=-1)
-        # Stack background map to 3 channels (even if not directly used by current model)
+        # Normalize to [-1, 1] for model
+        bright_map_norm_3ch = (bright_map_3ch.astype(np.float32) / 127.5) - 1.0
+        dark_map_norm_3ch = (dark_map_3ch.astype(np.float32) / 127.5) - 1.0
         background_img_3ch = np.stack([background_img_norm, background_img_norm, background_img_norm], axis=-1)
 
+        # Create PIL images for embedding (grayscale)
+        bright_pil = Image.fromarray(bright_map_display)
+        dark_pil = Image.fromarray(dark_map_display)
 
-        # Add batch dimension to all processed images
-        input_original_batch = np.expand_dims(original_img_norm, axis=0)
-        input_bright_map_batch = np.expand_dims(bright_map_3ch, axis=0)
-        input_dark_map_batch = np.expand_dims(dark_map_3ch, axis=0)
-        input_background_batch = np.expand_dims(background_img_3ch, axis=0) # New extracted background input
+        bright_data_url = pil_image_to_data_url(bright_pil, fmt='PNG')
+        dark_data_url = pil_image_to_data_url(dark_pil, fmt='PNG')
 
-        # Return all processed inputs, including the background image and map filenames
-        return input_original_batch, input_bright_map_batch, input_dark_map_batch, input_background_batch, bright_map_filename, dark_map_filename
+        # Add batch dims
+        original_input_batch = np.expand_dims(original_img_norm, axis=0)
+        bright_input_batch = np.expand_dims(bright_map_norm_3ch, axis=0)
+        dark_input_batch = np.expand_dims(dark_map_norm_3ch, axis=0)
+        background_input_batch = np.expand_dims(background_img_3ch, axis=0)
+
+        return original_input_batch, bright_input_batch, dark_input_batch, background_input_batch, bright_data_url, dark_data_url
     except Exception as e:
-        print(f"Error during image preprocessing: {e}")
-        return None, None, None, None, None, None # Return None for all outputs in case of error
+        print("Preprocessing error:", e)
+        return (None, None, None, None, None)
 
 # --- Flask Setup ---
 app = Flask(__name__)
 MODEL_PATH = 'dr_detection_model.h5'
-UPLOAD_FOLDER = 'Uploads'
-os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 
-# Set UPLOAD_FOLDER for send_from_directory
-app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
-
-# Load model with error handling
+# Load model (keep custom_objects)
 try:
-    # It's crucial to pass the custom_objects when loading a model that uses custom layers.
     model = load_model(MODEL_PATH, custom_objects={'SelfAttention': SelfAttention}, compile=False)
     print(f"Model loaded successfully from {MODEL_PATH}")
 except Exception as e:
-    print(f"Error loading model: {e}. Please ensure '{MODEL_PATH}' exists and is a valid Keras model.")
+    print(f"Error loading model: {e}. Ensure '{MODEL_PATH}' exists and is compatible.")
     model = None
 
 # --- Class Names for DR Grades ---
@@ -324,82 +293,45 @@ def dr_info():
 
 @app.route('/', methods=['GET', 'POST'])
 def index():
-    """
-    Handles image upload, preprocessing, and DR grade prediction.
-    Displays the result or an error message.
-    """
-    # Check if the model was loaded successfully
     if model is None:
-        return render_template('index.html', error="Model not loaded. Please check server logs for details.", result=False)
+        return render_template('index.html', error="Model not loaded. Check server logs.", result=False)
 
     if request.method == 'POST':
-        # --- CLEANUP existing files on every new upload ---
-        for fn in os.listdir(UPLOAD_FOLDER):
-            fp = os.path.join(UPLOAD_FOLDER, fn)
-            try:
-                if os.path.isfile(fp): os.remove(fp)
-            except Exception:
-                pass
-        
         # Validate if a file was uploaded
         if 'original' not in request.files or request.files['original'].filename == '':
             return render_template('index.html', error="Please upload an image file.", result=False)
 
         file = request.files['original']
-        # Save the uploaded file temporarily
-        filepath = os.path.join(UPLOAD_FOLDER, file.filename)
-        file.save(filepath)
 
-        # Preprocess the image for prediction, now also getting the background image and map filenames
-        original_img, bright_map_input, dark_map_input, background_img_input, bright_map_filename, dark_map_filename = \
-            preprocess_image_for_prediction(filepath, UPLOAD_FOLDER, file.filename)
+        # Process entirely in memory; do NOT save to disk
+        original_img, bright_map_input, dark_map_input, background_img_input, bright_data_url, dark_data_url = \
+            preprocess_image_file(file)
 
-        # Clean up the temporary original file after processing
-        # try:
-        #     os.remove(filepath)
-        # except Exception as e:
-        #     print(f"Error removing temporary original file '{filepath}': {e}")
-
-        # Check if preprocessing was successful (any of the returned values being None indicates failure)
         if original_img is None:
-            return render_template('index.html', error="Failed to preprocess image. Please ensure it's a valid image file.", result=False)
+            return render_template('index.html', error="Failed to preprocess image. Ensure it's a valid retina image.", result=False)
 
         try:
-            # Make prediction using the loaded model
-            # IMPORTANT: The current model expects only 3 inputs.
-            # So, we pass only 'original_img', 'bright_map_input', and 'dark_map_input'.
             preds = model.predict([original_img, bright_map_input, dark_map_input], verbose=0)[0]
-            grade = int(np.argmax(preds)) # Get the predicted class index
-            confidence = float(preds[grade]) # Get the confidence score for the predicted class
-            class_name = CLASS_NAMES.get(grade, f'Unknown Class {grade}') # Map index to class name
+            grade = int(np.argmax(preds))
+            confidence = float(preds[grade])
+            class_name = CLASS_NAMES.get(grade, f'Unknown Class {grade}')
+            confidence_scores = [float(p) for p in preds]
 
-            # Convert predictions to a list for the template
-            confidence_scores = [float(pred) for pred in preds]
-
-            # Render the result on the HTML page, passing URLs for the generated maps and confidence scores
+            # Return data URLs for embedded images instead of filesystem URLs
             return render_template(
                 'index.html',
                 result=True,
                 grade=class_name,
-                confidence=f"{confidence:.3f}", # Format confidence to 3 decimal places
-                bright_map_url=url_for('uploaded_file', filename=bright_map_filename),
-                dark_map_url=url_for('uploaded_file', filename=dark_map_filename),
+                confidence=f"{confidence:.3f}",
+                bright_map_url=bright_data_url,
+                dark_map_url=dark_data_url,
                 confidence_scores=confidence_scores,
                 class_names=list(CLASS_NAMES.values())
             )
         except Exception as e:
-            # Catch any errors during prediction
-            return render_template('index.html', error=f"Prediction failed: {e}. Please check the image format or model compatibility.", result=False)
+            return render_template('index.html', error=f"Prediction failed: {e}", result=False)
 
-    # Render the initial upload form for GET requests
     return render_template('index.html', result=False)
-
-@app.route('/Uploads/<filename>')
-def uploaded_file(filename):
-    """
-    Route to serve files from the UPLOAD_FOLDER.
-    """
-    return send_from_directory(app.config['UPLOAD_FOLDER'], filename)
 
 if __name__ == '__main__':
     # Run the Flask application in debug mode (for development)
