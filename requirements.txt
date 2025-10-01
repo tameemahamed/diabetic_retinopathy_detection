@@ -1,6 +1,6 @@
-flask
-tensorflow
+flask==2.3.2
+tensorflow==2.19.0
 numpy
-pillow
-scikit-image
-opencv-python
+pillow==11.2.1
+scikit-image==0.25.2
+opencv-python==4.11.0.86
